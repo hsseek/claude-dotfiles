@@ -1,0 +1,20 @@
+# Sensitive credentials
+.credentials.json
+
+# Session and conversation history
+history.jsonl
+sessions/
+projects/
+session-env/
+shell-snapshots/
+paste-cache/
+file-history/
+
+# Cache and downloads
+cache/
+downloads/
+chrome/
+backups/
+
+# Auto-downloaded marketplace data (re-fetched on demand)
+plugins/marketplaces/
