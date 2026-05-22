@@ -18,3 +18,9 @@ backups/
 
 # Auto-downloaded marketplace data (re-fetched on demand)
 plugins/marketplaces/
+
+# Runtime/operational markers
+.last-cleanup
+
+# Local settings (machine-specific, not for sharing)
+settings.local.json
