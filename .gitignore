@@ -12,15 +12,25 @@ file-history/
 
 # Cache and downloads
 cache/
+image-cache/
 downloads/
 chrome/
 backups/
+telemetry/
+
+# Ephemeral conversation state
+plans/
+tasks/
 
 # Auto-downloaded marketplace data (re-fetched on demand)
 plugins/marketplaces/
+plugins/known_marketplaces.json
+plugins/installed_plugins.json
+plugins/plugin-catalog-cache.json
 
 # Runtime/operational markers
 .last-cleanup
 
 # Local settings (machine-specific, not for sharing)
 settings.local.json
+settings.json
