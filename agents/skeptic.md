@@ -1,7 +1,7 @@
 ---
 name: skeptic
 description: Use this agent to challenge assumptions, identify risks, find weak evidence, and test whether a proposal is actually sound.
-model: sonnet
+model: opus
 skills:
   - skeptical-review
 ---
