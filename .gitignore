@@ -30,6 +30,10 @@ plugins/plugin-catalog-cache.json
 
 # Runtime/operational markers
 .last-cleanup
+.last-update-result.json
+mcp-needs-auth-cache.json
+policy-limits.json
+remote-settings.json
 
 # Local settings (machine-specific, not for sharing)
 settings.local.json
