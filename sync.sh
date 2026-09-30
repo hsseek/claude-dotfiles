@@ -33,7 +33,7 @@ compare_file() {
 
 install_files() {
   copy_file "$repo_dir/claude/CLAUDE.md" "$user_dir/.claude/CLAUDE.md"
-  copy_file "$repo_dir/codex/AGENTS.md" "$user_dir/AGENTS.md"
+  copy_file "$repo_dir/codex/AGENTS.md" "$user_dir/.codex/AGENTS.md"
   for file in $claude_agents; do
     copy_file "$repo_dir/claude/agents/$file" "$user_dir/.claude/agents/$file"
   done
@@ -48,7 +48,7 @@ install_files() {
 
 capture_files() {
   copy_file "$user_dir/.claude/CLAUDE.md" "$repo_dir/claude/CLAUDE.md"
-  copy_file "$user_dir/AGENTS.md" "$repo_dir/codex/AGENTS.md"
+  copy_file "$user_dir/.codex/AGENTS.md" "$repo_dir/codex/AGENTS.md"
   for file in $claude_agents; do
     copy_file "$user_dir/.claude/agents/$file" "$repo_dir/claude/agents/$file"
   done
@@ -63,7 +63,7 @@ capture_files() {
 check_files() {
   result=0
   compare_file "$repo_dir/claude/CLAUDE.md" "$user_dir/.claude/CLAUDE.md" || result=1
-  compare_file "$repo_dir/codex/AGENTS.md" "$user_dir/AGENTS.md" || result=1
+  compare_file "$repo_dir/codex/AGENTS.md" "$user_dir/.codex/AGENTS.md" || result=1
   for file in $claude_agents; do
     compare_file "$repo_dir/claude/agents/$file" "$user_dir/.claude/agents/$file" || result=1
   done
