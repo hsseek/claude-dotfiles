@@ -6,7 +6,7 @@ user_dir=${HOME:?HOME must be set}
 
 claude_agents="bold-strategist.md practical-engineer.md prompt-architect.md skeptic.md"
 codex_agents="bold-strategist.toml practical-engineer.toml prompt-architect.toml skeptic.toml"
-skills="bold-suggestion engineering-issue-review practical-planning skeptical-review"
+skills="bold-suggestion engineering-issue-review practical-planning prompt-architect skeptical-review"
 
 copy_file() {
   source_file=$1
