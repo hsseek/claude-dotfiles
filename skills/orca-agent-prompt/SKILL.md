@@ -1,44 +1,70 @@
 ---
 name: orca-agent-prompt
-description: Turn a task or objective into a ready-to-paste Orca coordinator prompt with agent assignments, model selection, ownership, dependencies, and acceptance criteria. Optionally execute the approved plan through Orca Runs and workers when requested.
+description: Turn an abstract goal into a ready-to-paste OpenCode coordinator prompt for Orca orchestration, with numbered Plan questions, difficulty-based model assignments, and Build execution with elevated permissions. Execute only when requested.
 ---
 
 # Orca agent prompt
 
-Produce a self-contained coordinator prompt for the user's actual objective. Default to prompt generation; execute only when the user requests execution. A request to write a prompt does not authorize launching agents.
+Generate one self-contained prompt addressed to OpenCode as coordinator. Orca is the orchestrator: it manages Runs, tasks, worker dispatch, dependencies, and lifecycle. OpenCode clarifies the goal, decomposes work, assigns models, supervises workers through Orca, and checks results. Worker agents perform bounded subtasks through verified backends, including advanced hosted models and cheaper hosted or local models.
 
-## Establish the task
+Default to prompt generation. A request for a prompt does not authorize launching agents or changing runtime configuration. A short, abstract goal is valid input; the generated prompt must turn it into actionable work through OpenCode's Plan phase.
 
-Respect the current user's skill-permission and Git instructions. Read applicable AGENTS.md and relevant workspace Markdown/configuration before asking for information they already contain. Treat old handoffs as historical evidence, not current runtime facts. Do not restore deleted files or change project configuration as part of discovery.
+## Prepare the prompt
 
-Clarify consequential gaps before finalizing assignments: desired outcome, repository or folder, host, deliverables, constraints, acceptance criteria, and execution intent. Ask concise grouped questions; do not invent missing requirements, file paths, model IDs, or approvals. If discovery is unavailable, provide clearly marked unresolved fields in a draft and require resolution before dispatch.
+Respect the user's skill-permission and Git instructions. Read applicable AGENTS.md and relevant workspace configuration before asking for facts they already contain. Treat historical notes as context, not current runtime facts. Do not restore deleted files or change project configuration during discovery.
 
-Read [references/personal-environment.md](references/personal-environment.md) when using the user's xps9560 hybrid environment. Do not impose its hardware limits on unrelated environments.
+Capture the goal faithfully, known constraints, and existing answers. Ask the current user only about gaps that prevent producing the right coordinator prompt; put project discovery and detailed requirement questions into the generated Plan phase. Do not require the user to complete the entire planning interview before receiving the prompt. Label preliminary subtasks and unknowns explicitly; never invent requirements, paths, model IDs, or approvals.
 
-## Design the assignments
+Read [references/personal-environment.md](references/personal-environment.md) when targeting the user's xps9560 hybrid environment. Include relevant constraints explicitly in the output; do not require the receiving coordinator to have this skill or the original conversation.
 
-Use the smallest useful team. Assign bounded mechanical work or focused tests to a capable small local model; assign complex implementation, integration, and coordination to a stronger verified model. Explain each assignment briefly. Do not add a review agent unless independent review helps assess the result. Do not force parallelism when work is inherently sequential.
+## Plan phase: discover the requirements
 
-Identify independent waves and actual dependencies. Tests may be drafted alongside implementation when their interface is agreed, but final integration checks must wait for implementation. Give each editable file or directory one owner per wave; designate an integration owner for shared changes. Workers must preserve other contributors' edits. For non-code tasks, define artifact and decision ownership instead.
+The generated prompt must instruct OpenCode to begin in Plan mode and perform read-only discovery. No implementation workers, repository edits, or Run execution during Plan. Verify the installed Orca guide, execution host/workspace, available backends/models, and supported permission controls without mutating configuration.
 
-For every task include ID, role, agent backend, exact verified model ID (or an explicit unresolved field), target, change, read context, editable ownership, do-not-touch boundaries, dependencies, observable acceptance, and completion evidence. Keep worker specs self-contained and small enough for the assigned model.
+Ask numbered questions in small, coherent rounds. Each question must include a suggested default answer, a short reason the decision matters, and alternatives when useful. Keep numbering stable across rounds so the user can answer by number. Example: “1. Who will use this? Default: only you. This determines whether accounts and shared access are needed.” Defaults are proposals, never silently accepted facts. Let the user accept all defaults explicitly or override individual answers. An unanswered question or elapsed time is not acceptance.
 
-Use these defaults unless the user explicitly changes them: show the plan and exact model IDs before dispatch; one attempt per task; no automatic retries, paid fallback, recursive delegation, commits, or pushes. A failed acceptance check is a reported failure, not permission to disguise a retry as a new task. Explicit user authorization can change a default, but must be reflected in the plan.
+Use questions to surface decisions the user may not know are relevant: intended users and workflows, success criteria, deliverables, existing systems/data, constraints, exclusions, execution host, cost/provider limits, and acceptance checks. Ask only relevant questions and skip facts already established. Explain tradeoffs in plain language. Incorporate answers, identify contradictions, and ask focused follow-ups until consequential gaps are resolved. Present provisional subtasks to make implications concrete, then refine them from the answers.
 
-## Return the prompt
+Before Build, show a concise resolved plan with deliverables, task ownership/dependencies, exact model IDs and rationale, cost/resource limits, checks, and permission scope. Once the user's answers resolve the plan, proceed without a separate “approve the plan” question. Respect an explicit request to remain in Plan. If switching modes requires a UI action, tell the user exactly what is needed; do not claim the mode changed or execute Build actions while Plan restrictions remain active.
 
-Return one ready-to-paste prompt in a fenced block, preceded only by material unresolved questions or a brief assignment rationale. Write to the coordinator as “you.” Include:
+## Assign work by difficulty and cost
 
-1. Objective, concrete deliverables, scope boundaries, and definition of done.
-2. Project/workspace, execution host, coordinator backend/model, and verification requirements. For Mobile supervision in this user's setup, require the coordinator and new Run on xps9560. If the project exists only on the laptop, stop for server setup; do not remotely launch workers from a laptop-owned Run.
-3. A compact task table with exact model IDs, ownership, dependencies, and acceptance criteria, followed by self-contained worker specs.
-4. A gate requiring the coordinator to present the resolved plan, models, host, ownership, tests, and needed permissions before dispatch, then wait for approval. Reuse approval already given for that exact plan; material changes need approval.
-5. Execution instructions: load the installed version-matched Orca orchestration guide; verify host and workspace; create a fresh Run for the objective and launch tasks through `orchestration worker-start`. Opening tabs manually or using generic subagent tools does not satisfy this request. Preserve the Run, Task, and Dispatch IDs returned by Orca.
-6. Supervision and completion: follow live injected worker preambles, process questions and completion reports before acknowledging deliveries, validate actual artifacts and acceptance evidence, settle tasks, and release workers only after accepted settlement. Report uncertainty without inventing success or killing unverified processes.
-7. A final report naming each task's outcome, files/artifacts, test evidence, Run ID, blockers, and worker cleanup or retention state. Do not claim Mobile supervision was tested unless actually observed.
+Use the smallest useful team and the least expensive verified model capable of meeting each task's acceptance criteria. Judge ambiguity, reasoning depth, context size, integration risk, and cost of mistakes, not only task length.
 
-Prompts must remain portable: include the necessary constraints explicitly instead of requiring the receiving coordinator to have this skill or the original conversation. Do not hard-code old runtime, Run, Task, Dispatch, or terminal IDs. Describe runtime discovery rather than guessing unsupported CLI flags.
+- Advanced models: difficult reasoning, architecture, ambiguous debugging, complex implementation, and consequential integration/review. GPT-6-Astra is an example of the desired capability tier, not a guaranteed model ID or backend.
+- Cheaper hosted models: well-specified implementation, bounded refactoring, and focused test work when their capabilities suffice. DeepSeek is an example family, not a fixed catalog entry.
+- Small local models: narrow mechanical edits, extraction, or simple checks with compact context and independently verifiable outputs. Ollama is a serving backend; choose an actual available model ID.
+
+Distinguish backend, provider, model ID, and reasoning setting. Resolve exact IDs and supported controls from the current catalog/installed guide before dispatch. Do not assume ChatGPT subscription access implies an API model or that a model name implies free service. Unknown pricing, unavailable required models, or missing cost limits are Plan questions. Do not silently substitute a paid provider. Keep the OpenCode coordinator's own model selection explicit and verified.
+
+Partition work into independent waves and real dependencies. Give each editable file/directory one owner per wave and designate the integration owner for shared changes. Workers must preserve others' edits. For non-code work, assign artifact and decision ownership. Final integration checks depend on completed implementation. Add independent review only when it materially improves confidence; do not force parallelism.
+
+For every task include ID, purpose, difficulty/routing rationale, backend and exact model ID, target/change, necessary read context, editable ownership and do-not-touch boundaries, dependencies, observable acceptance, and completion evidence. Keep worker briefs self-contained and small enough for the assigned model. Workers report consequential unknowns to OpenCode, which consolidates numbered user questions instead of inventing answers.
+
+## Build phase: permissions and execution
+
+The generated prompt must request the broadest supported execution permissions for the coordinator and workers within the resolved task scope. Configure these through verified session/dispatch controls before launching work, so routine edits, commands, and checks do not repeatedly ask for permission. Inspect the effective settings for each backend; permission inheritance must not be assumed. Scope changes to the task/session rather than weakening unrelated global settings.
+
+Prompt text cannot grant operating-system, sandbox, or platform permissions. Preserve mandatory platform approvals, and require confirmation for destructive or external actions. Do not commit or push without an explicit user request. If elevation requires a platform approval or launch setting, surface that concrete prerequisite together before dispatch where possible. Do not bypass restrictions or claim workers will never prompt. Reuse existing authorization within its scope instead of repeatedly requesting it.
+
+Load the installed version-matched Orca orchestration guide and discover supported commands/flags. Create a fresh Run for the objective and dispatch through Orca's supported orchestration worker-start flow. Manually opening tabs or generic subagent tools does not satisfy Orca orchestration. Preserve the returned Run, Task, and Dispatch IDs. For Mobile supervision in the user's hybrid setup, the coordinator and Run must be on xps9560; resolve missing server setup before dispatch.
+
+Unless the user changes these limits during Plan, use one attempt per task, no automatic retries, paid fallback, or recursive delegation. Include these limits in the resolved plan. A failed acceptance check is a reported failure, not permission to disguise a retry as a new task. Ask a focused question when a failure needs a new attempt, different model, extra spending, or changed scope; do not reopen settled decisions.
+
+Follow live worker preambles and Orca's supervision/settlement rules. Process worker questions and completion reports before acknowledging deliveries; verify artifacts and acceptance evidence, settle tasks, then release workers. Report uncertainty without inventing success or killing unverified processes. Finish with task outcomes, files/artifacts, check evidence, Run ID, blockers, and worker cleanup/retention state. Do not claim Mobile supervision was tested unless observed.
+
+## Output contract
+
+Return one ready-to-paste fenced prompt, with at most a brief rationale outside it. Address OpenCode as “you” and include:
+
+1. The user's goal, known context, constraints, and the Orca/OpenCode/worker roles.
+2. Explicit Plan and Build instructions, numbered question/default format, and the transition rule above.
+3. Provisional decomposition where possible, followed by instructions to resolve it into a task table and self-contained worker briefs after the interview. Exact model IDs may remain marked as unresolved in this initial prompt but must be verified before dispatch.
+4. Model routing, host/resource/cost constraints, ownership, dependencies, acceptance criteria, and permission behavior.
+5. Version-matched Orca discovery, execution, supervision, completion, and failure handling.
+
+Keep the prompt proportional to the goal and portable. Include necessary constraints rather than references to unavailable conversation history. Never hard-code historical Run/Task/Dispatch/terminal IDs or guess unsupported CLI flags. The output must be usable from a one-sentence goal without pretending that requirements are already settled.
 
 ## Optional execution
 
-When execution is requested, first produce the concrete prompt and plan, then follow [references/execution.md](references/execution.md). Honor the approval gate before dispatch. Do not launch a sample Run merely to test this skill.
+Execute only when the user explicitly requests it. First produce the concrete coordinator prompt, then follow [references/execution.md](references/execution.md). Use the same Plan questions, resolved-plan transition, and Build permission boundary. Do not launch a sample Run merely to test this skill.
