@@ -36,7 +36,9 @@ git diff
 
 `capture` reads both tools' agents and global instructions, plus the shared
 Skills from `~/.agents/skills`. `install` writes the shared Skills to both
-tools' active Skill directories.
+tools' active Skill directories: `~/.agents/skills` for Codex and
+`~/.claude/skills` for Claude Code. Skills are copied and compared as complete
+folders, including supporting files such as `references/`, `scripts/`, and assets.
 
 The repository retains its existing GitHub remote even though the checkout is
 now named `agent-configs` locally.
