@@ -54,7 +54,66 @@ compare_skill() {
   fi
 }
 
+
+# The full machine inventory is local-only; never include it in Git.
+private_context="$repo_dir/private/home-server.md"
+active_context="$user_dir/.config/agent-context/home-server.md"
+
+assert_private_context_untracked() {
+  tracked_private=$(git -C "$repo_dir" ls-files -- private/ home-server.md ':(glob)**/home-server.md')
+  if [ -n "$tracked_private" ]; then
+    printf 'ERROR: Private home server context is tracked by Git. Unstage or untrack it before syncing.\n' >&2
+    return 1
+  fi
+  if ! git -C "$repo_dir" check-ignore -q -- private/home-server.md; then
+    printf 'ERROR: private/home-server.md must be ignored by Git before syncing.\n' >&2
+    return 1
+  fi
+}
+
+copy_private_file() (
+  source_file=$1
+  target_file=$2
+  target_dir=$(dirname -- "$target_file")
+  if [ -L "$target_file" ] || [ -L "$target_dir" ]; then
+    printf 'ERROR: Refusing to write private context through a symlink: %s\n' "$target_file" >&2
+    exit 1
+  fi
+  umask 077
+  mkdir -p "$target_dir"
+  chmod 700 "$target_dir"
+  cp "$source_file" "$target_file"
+  chmod 600 "$target_file"
+  printf 'PRIVATE %s -> %s\n' "$source_file" "$target_file"
+)
+
+install_private_context() {
+  if [ -f "$private_context" ]; then
+    copy_private_file "$private_context" "$active_context"
+  else
+    printf 'SKIP    No private/home-server.md; existing live context is preserved. Transfer a private copy separately.\n'
+  fi
+}
+
+capture_private_context() {
+  if [ -f "$active_context" ]; then
+    copy_private_file "$active_context" "$private_context"
+  else
+    printf 'SKIP    No live home-server.md; existing private snapshot is preserved.\n'
+  fi
+}
+
+check_private_context() {
+  if [ -f "$private_context" ]; then
+    compare_file "$private_context" "$active_context"
+  else
+    printf 'SKIP    No private home server snapshot to compare; use capture or transfer a private copy.\n'
+  fi
+}
+
 install_files() {
+  assert_private_context_untracked
+  install_private_context
   copy_file "$repo_dir/claude/CLAUDE.md" "$user_dir/.claude/CLAUDE.md"
   copy_file "$repo_dir/codex/AGENTS.md" "$user_dir/.codex/AGENTS.md"
   for file in $claude_agents; do
@@ -70,6 +129,8 @@ install_files() {
 }
 
 capture_files() {
+  assert_private_context_untracked
+  capture_private_context
   copy_file "$user_dir/.claude/CLAUDE.md" "$repo_dir/claude/CLAUDE.md"
   copy_file "$user_dir/.codex/AGENTS.md" "$repo_dir/codex/AGENTS.md"
   for file in $claude_agents; do
@@ -84,7 +145,9 @@ capture_files() {
 }
 
 check_files() {
+  assert_private_context_untracked
   result=0
+  check_private_context || result=1
   compare_file "$repo_dir/claude/CLAUDE.md" "$user_dir/.claude/CLAUDE.md" || result=1
   compare_file "$repo_dir/codex/AGENTS.md" "$user_dir/.codex/AGENTS.md" || result=1
   for file in $claude_agents; do
@@ -101,6 +164,7 @@ check_files() {
 }
 
 validate_files() {
+  assert_private_context_untracked
   python3 -c 'import pathlib, sys, tomllib
 files = sorted(pathlib.Path(sys.argv[1]).glob("*.toml"))
 for path in files:

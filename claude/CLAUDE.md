@@ -10,3 +10,7 @@
 - Also, if I'm about to commit while still on the default branch (master/main), remind me to branch first.
 - Propose a branch name using `type/short-desc` (e.g. `feat/new-wish-highlight`, `fix/delete-button`, `chore/...`), but wait for my OK before creating it — do not create the branch automatically.
 - If I decline, proceed on the current branch without pushing back.
+
+## Home server context
+
+@/home/sun/.config/agent-context/home-server.md

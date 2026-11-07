@@ -11,3 +11,8 @@
 - Also, if I'm about to commit while still on the default branch (master/main), remind me to branch first.
 - Propose a branch name using `type/short-desc` (e.g. `feat/new-wish-highlight`, `fix/delete-button`, `chore/...`), but wait for my OK before creating it — do not create the branch automatically.
 - If I decline, proceed on the current branch without pushing back.
+
+## Home server context
+- My home server is `xps9560`, connected through Tailscale.
+- Before work involving my home server, SSH, Tailscale, Orca server placement, or local inference, read `/home/sun/.config/agent-context/home-server.md`.
+- Verify the actual execution host before host-sensitive work. If the reference is unavailable, report that rather than guessing connection details.

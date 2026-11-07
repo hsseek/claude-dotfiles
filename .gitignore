@@ -38,3 +38,7 @@ remote-settings.json
 # Local settings (machine-specific, not for sharing)
 settings.local.json
 settings.json
+
+# Private infrastructure context (transfer separately; never publish)
+/private/
+home-server.md
